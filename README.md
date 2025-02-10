@@ -5,7 +5,7 @@ The base lc3 vm is implemeted.
 
 Currently the below additions have been made:
 
-# Custom Opcodes
+## Custom Opcodes
 | Opcode  | Instruction | Description |
 |---------|------------|-------------|
 | 0xE8    | NOP        | No Operation |
@@ -13,7 +13,7 @@ Currently the below additions have been made:
 | 0xEA    | INC R0     | Increments the specified register by 1 |
 | 0xEB    | DEC R0     | Decrements the specified register by 1 |
 
-# Custom System Calls
+## Custom System Calls
 | Trap Code | Instruction   | Description |
 |-----------|--------------|-------------|
 | 0x26      | TRAP_PUTHEX  | Prints a number in hexadecimal format |

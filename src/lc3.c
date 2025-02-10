@@ -47,10 +47,12 @@ enum
     OP_JMP,    /* jump */
     OP_RES,    /* reserved (unused) */
     OP_LEA,    /* load effective address */
-    OP_TRAP    /* execute trap */
-	// New Instructions (Custom Opcodes)
-	
-
+    OP_TRAP,   /* execute trap */
+	// New Op Codes
+    OP_NOP = 0xE8,      /* no operation */
+    OP_CLR = 0xE9,      /* clear a register */
+    OP_INC = 0xEA,      /* increment a register */
+    OP_DEC = 0xEB,      /* decrement a register */
 };
 enum
 {
@@ -64,7 +66,12 @@ enum
     TRAP_PUTS = 0x22,  /* output a word string */
     TRAP_IN = 0x23,    /* get character from keyboard, echoed onto the terminal */
     TRAP_PUTSP = 0x24, /* output a byte string */
-    TRAP_HALT = 0x25   /* halt the program */
+    TRAP_HALT = 0x25,  /* halt the program */
+    // New Trap Codes
+    TRAP_PUTHEX = 0x26, /* print a number in hex format */
+    TRAP_RND = 0x27,    /* generate a random number */ 
+    TRAP_GETSTR = 0x28, /* read entire string*/
+    TRAP_SLEEP = 0x29,  /* pause for a specified delay */
 };
 
 #define MEMORY_MAX (1 << 16)
@@ -358,6 +365,33 @@ int main(int argc, const char* argv[])
                     mem_write(reg[r1] + offset, reg[r0]);
                 }
                 break;
+            case OP_NOP:
+                {
+                    break;
+                }
+                break;
+            case OP_CLR:
+                {
+                    uint16_t r0 = (instr >> 9) & 0x7;
+                    reg[r0] = 0;
+                    update_flags;
+                }
+                break;
+            case OP_INC:
+                {
+                    uint16_t r0 = (instr >> 9) & 0x7;
+                    reg[r0]++;
+                    update_flags(r0);
+                }
+                break;
+            case OP_DEC:
+                {
+                    uint16_t r0 = (instr >> 9) & 0x7;
+                    reg[r0]--;
+                    update_flags(r0);
+                }
+                break;
+
             case OP_TRAP:
                 reg[R_R7] = reg[R_PC];
                 
@@ -412,10 +446,44 @@ int main(int argc, const char* argv[])
                         }
                         break;
                     case TRAP_HALT:
-                        puts("HALT");
-                        fflush(stdout);
-                        running = 0;
+                        {
+                            puts("HALT");
+                            fflush(stdout);
+                            running = 0;
+                        }
                         break;
+                    case TRAP_PUTHEX:
+                        {
+                            uint16_t value = register[R_R0];
+                            printf("0x%04X\n", value);
+                        }
+                        break;
+                    case TRAP_RND:
+                        {
+                            uint16_t max = reg[R_R0];
+                            reg[R_R0] = rand() % (max + 1);
+                            update_flags(R_R0);
+                        }
+                        break;
+                    case TRAP_GETSTR:
+                        {
+                            char buffer[32];
+                            fgets(buffer, sizeof(buffer), stdin);
+                            
+                            uint16_t addr = reg[R_R0];
+                            for (int i = 0; i < 32 && buffer[i] != '\0'; i++) {
+                                memory[addr++] = buffer[i];
+                            }
+                            memory[addr] = 0;
+                        }
+                        break; 
+                    case TRAP_SLEEP:
+                        {
+                            uint16_t milliseconds = reg[R_R0];
+                            usleep(milliseconds * 1000);
+                        }
+                        break;
+
                 }
                 break;
             case OP_RES:

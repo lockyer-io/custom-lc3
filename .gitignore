@@ -1,2 +1,4 @@
 # ignore all .obj files
-*.obj
+2048.obj
+lc3-vm
+

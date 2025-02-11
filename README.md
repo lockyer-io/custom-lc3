@@ -23,6 +23,7 @@ Currently the below additions have been made:
 
 ## TODO
 - [x] Add Custom Opcodes
+- [ ] Implement Disassembler
 - [ ] Implement Debugger (Breakpoints, Step-by-Step Execution)
 - [ ] Implement Web-Based LC-3 VM (Run in Browser)
 - [ ] Implement Simple Game in LC-3 Assembly (Snake, Pong)
